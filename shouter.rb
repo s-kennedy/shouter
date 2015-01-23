@@ -5,6 +5,8 @@ require 'sinatra'
 require 'sinatra/reloader'
 require 'date'
 
+enable :sessions
+
 set :port, 3000
 set :bind, '0.0.0.0'
 
@@ -20,28 +22,42 @@ class User < ActiveRecord::Base
 	validates :handle, presence: true, uniqueness: true
 	validates :password, presence: true, uniqueness: true
 
-	# def initialize(name, handle, password)
-	# 	@name = name
-	# 	@handle = handle
-	# 	@password = ?????
-
 end
 
 class Shout < ActiveRecord::Base
 
 	belongs_to :user
 	validates :message, presence: true, length: { minimum: 1, maximum: 200}
-	validates :user_id, presence: true
+	# validates :user_id, presence: true
 	validates_numericality_of :likes, greater_than: -1
 	validates :created_at, presence: true
 
 end
 
+
 get '/' do
+	@shouts = Shout.all
+	@users = User.all
 	erb :index
 end
 
+post '/signup' do
+	if params[:handle] 
+	user = User.new(name: params[:name], handle: params[:handle], password: params[:password])
+	user.save
+	session['user_name'] = user.name
+	redirect '/'
+end
+
 post '/shout' do
+	shout = Shout.new(message: params[:words], created_at: Time.new, likes: 0)
+	shout.save
+	redirect '/'
+end
+
+get '/logout' do
+	session.clear
+	redirect'/'
 end
 
 # -------------- TESTS ------------------#

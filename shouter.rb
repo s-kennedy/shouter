@@ -19,8 +19,8 @@ class User < ActiveRecord::Base
 
 	has_many :shouts
 	validates_presence_of :name
-	validates :handle, presence: true, uniqueness: true
-	validates :password, presence: true, uniqueness: true
+	validates :handle, presence: true, uniqueness: true, format: {with: /\A[a-z0-9]+\z/}
+	validates :password, presence: true, uniqueness: true, format: {with: /\A[a-z0-9]+\z/}
 
 end
 
@@ -28,7 +28,7 @@ class Shout < ActiveRecord::Base
 
 	belongs_to :user
 	validates :message, presence: true, length: { minimum: 1, maximum: 200}
-	# validates :user_id, presence: true
+	validates :user_id, presence: true
 	validates_numericality_of :likes, greater_than: -1
 	validates :created_at, presence: true
 
@@ -42,15 +42,27 @@ get '/' do
 end
 
 post '/signup' do
-	if params[:handle] 
-	user = User.new(name: params[:name], handle: params[:handle], password: params[:password])
-	user.save
-	session['user_name'] = user.name
-	redirect '/'
+	if User.find_by handle:(params[:handle])		
+		user = User.find_by handle: (params[:handle])
+		if params[:password] == user.password
+			session[:user_name] = user.name
+			session[:user_id] = user.id
+		else
+			redirect '/'
+		end
+	else
+		user = User.new(name: params[:name], handle: params[:handle], password: params[:password])
+		user.save
+		session[:user_name] = user.name
+		session[:user_id] = user.id
+	end
+	redirect("/")
 end
 
 post '/shout' do
-	shout = Shout.new(message: params[:words], created_at: Time.new, likes: 0)
+	shout = Shout.new(message: params[:words], created_at: Time.new, likes: 0, )
+	user = User.find(session[:user_id])
+	user.shouts << shout
 	shout.save
 	redirect '/'
 end
@@ -59,6 +71,15 @@ get '/logout' do
 	session.clear
 	redirect'/'
 end
+
+get '/like/:shout_id' do
+	shout = Shout.find(params[:shout_id])
+	shout.likes +=1
+	shout.save
+	redirect '/'
+end
+
+
 
 # -------------- TESTS ------------------#
 

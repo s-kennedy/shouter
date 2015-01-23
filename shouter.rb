@@ -37,6 +37,7 @@ end
 
 get '/' do
 	@shouts = Shout.all
+	@shouts = @shouts.order(created_at: :desc)
 	@users = User.all
 	erb :index
 end
@@ -79,6 +80,16 @@ get '/like/:shout_id' do
 	redirect '/'
 end
 
+get '/best' do
+	@best_shouts = Shout.all.order(likes: :desc)
+	erb :best
+end
+
+get '/:handle' do
+	@user = User.find_by handle: params[:handle]
+	@my_shouts = Shout.all.where(user_id: @user.id)
+	erb :handle
+end
 
 
 # -------------- TESTS ------------------#

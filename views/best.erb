@@ -1,0 +1,24 @@
+<html>
+	<head><title>SHOUTERRR</title></head>
+	<body>
+
+		<% if session[:user_name]%>
+			Hey <%=session[:user_name]%> you looking flyyy
+			<form method="get" action="/logout">
+   			<input type="submit" value="Log out">
+			</form>
+		<%end%>
+
+
+		<h1>LOUDEST SHOUTS</h1>
+
+			<% @best_shouts.each do |shout| %>
+			<strong><%=shout.message%></strong>
+			<ul>
+				<li><%=shout.created_at%> by <a href="/<%=shout.user.handle%>"><%=shout.user.handle %></a>
+				<li><%=shout.likes%> likes
+				<li><a href="/like/<%=shout.id%>"><strong>i likey</strong></a>
+			</ul>
+
+			<%end%>
+</html>

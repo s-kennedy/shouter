@@ -1,17 +1,17 @@
 <html>
-	<head><title>SHOUTERRRSHOUTERRR</title></head>
+	<head><title>SHOUTERRR</title></head>
 	<body>
 
-		<% if session['user_name'] == nil %>
+		<% if session[:user_name] == nil %>
 		<p><strong>Sign up</strong></p>
 			<form method="post" action="/signup">
-		    Name: <input type="text" name="name">
-		    Handle: <input type="text" name="handle">
-		    Password: <input type="text" name="password">
+		    Name: <input type="text" name="name" required>
+		    Handle: <input type="text" name="handle" pattern="[a-z0-9]+$" required>
+		    Password: <input type="text" name="password" pattern="[a-z0-9]+$" required>
 		    <input type="submit" value="Let me in!" name="submit"></input>
 			</form><br><br>
 		<% else %>
-			Hey <%=session['user_name']%> you looking flyyy
+			Hey <%=session[:user_name]%> you looking flyyy
 			<form method="get" action="/logout">
    			<input type="submit" value="Log out">
 			</form>
@@ -23,16 +23,16 @@
 		<form method="post" action="/shout">
 	    <p>Words:</p>
 	    <textarea cols="60" rows="3" name="words"></textarea><br><br>
-	    Password: <input type="text" name="password">
 	    <input type="submit" value="SHOUT IT!" name="submit"></input>
 		</form><br>
 		<h2>SHOUTS YEA</h2>
 			<% @shouts.each do |shout| %>
 			<strong><%=shout.message%></strong>
 			<ul>
-				<li><%=shout.created_at%>
+				<li><%=shout.created_at%> by <a href="/<%=shout.user.handle%>"><%=shout.user.handle %></a>
+				<li><%=shout.likes%> likes
+				<li><a href="/like/<%=shout.id%>"><strong>i likey</strong></a>
 			</ul>
-			<%end%>
 
-	</body>
+			<%end%>
 </html>
